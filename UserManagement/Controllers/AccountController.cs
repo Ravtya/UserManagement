@@ -25,9 +25,10 @@ public class AccountController(AppDbContext context, EmailService emailService, 
     [RedirectAuthenticated]
     public async Task<IActionResult> Login(LoginViewModel model)
     {
-        var user = await context.Users.FirstOrDefaultAsync(x => x.Email == model.Email);
-        
-        if (user is null || !BCrypt.Net.BCrypt.Verify(model.Password,user.Password))
+        var user = await context.Users.FirstOrDefaultAsync(x =>
+            x.Email.Equals(model.Email, StringComparison.InvariantCultureIgnoreCase));
+
+        if (user is null || !BCrypt.Net.BCrypt.Verify(model.Password, user.Password))
         {
             ModelState.AddModelError("", "Invalid email or password");
             return View(model);
@@ -58,10 +59,10 @@ public class AccountController(AppDbContext context, EmailService emailService, 
     {
         if (!ModelState.IsValid)
             return View(model);
-        
+
         var user = new User
         {
-            Email = model.Email,
+            Email = model.Email.ToLower(),
             Name = model.Name,
             Password = BCrypt.Net.BCrypt.HashPassword(model.Password),
             CreatedAt = DateTime.Now,
@@ -79,14 +80,14 @@ public class AccountController(AppDbContext context, EmailService emailService, 
             return View(model);
         }
 
-
         _ = Task.Run(async () =>
         {
             try
             {
                 var baseUrl = $"{Request.Scheme}://{Request.Host}";
-                var confirmationLink = emailService.GenerateConfirmationLink(model.Email, baseUrl);
-                await emailService.SendConfirmationEmailAsync(model.Email, model.Name, confirmationLink);
+                var confirmationLink = emailService.GenerateConfirmationLink(model.Email.ToLowerInvariant(), baseUrl);
+                await emailService.SendConfirmationEmailAsync(model.Email.ToLowerInvariant(), model.Name,
+                    confirmationLink);
             }
             catch (Exception ex)
             {
