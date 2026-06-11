@@ -25,8 +25,7 @@ public class AccountController(AppDbContext context, EmailService emailService, 
     [RedirectAuthenticated]
     public async Task<IActionResult> Login(LoginViewModel model)
     {
-        var user = await context.Users.FirstOrDefaultAsync(x =>
-            x.Email.Equals(model.Email, StringComparison.InvariantCultureIgnoreCase));
+        var user = await context.Users.FirstOrDefaultAsync(x => x.Email == model.Email.ToLowerInvariant());
 
         if (user is null || !BCrypt.Net.BCrypt.Verify(model.Password, user.Password))
         {
