@@ -1,0 +1,104 @@
+﻿@model List<UserManagement.Models.UserListItemViewModel>
+
+@{
+    ViewData["Title"] = "Users";
+}
+
+<form id="usersForm" method="post" asp-controller="Users">
+    @Html.AntiForgeryToken()
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body">
+            <div class="d-flex flex-wrap gap-2 justify-content-between align-items-center mb-3">
+                <div class="btn-group" role="group">
+                    <div class="d-flex flex-wrap gap-2" role="group" aria-label="ActionBar">
+                        <button asp-action="Block" title="Block users" id="btnBlock"
+                                class="btn btn-outline-primary d-inline-flex align-items-center gap-2">
+                            <i class="bi bi-lock-fill"></i>Block
+                        </button>
+                        <button asp-action="Unblock" title="Unblock users" id="btnUnblock"
+                                class="btn btn-outline-primary d-inline-flex align-items-center gap-2">
+                            <i class="bi bi-unlock-fill"></i>
+                        </button>
+                        <button asp-action="Delete" title="Delete users" id="btnDelete"
+                                class="btn btn-outline-danger d-inline-flex align-items-center gap-2">
+                            <i class="bi bi-trash-fill"></i>
+                        </button>
+                        <button asp-action="DeleteUnverified" title="Delete unverified users"
+                                class="btn btn-outline-danger d-inline-flex align-items-center gap-2">
+                            <i class="bi bi-person-x-fill"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                    <tr>
+                        <th style="width: 40px;">
+                            <input type="checkbox" id="selectAll" class="form-check-input"/>
+                        </th>
+                        <th>Email</th>
+                        <th>Name</th>
+                        <th>UserStatus</th>
+                        <th>Created</th>
+                        <th>LastLogin</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @foreach (var user in Model)
+                    {
+                        <tr data-user-status="@user.UserStatus.ToString()">
+                            <td>
+                                <input type="checkbox"
+                                       class="form-check-input row-checkbox"
+                                       name="selectedIds"
+                                       value="@user.Id"/>
+                            </td>
+                            <td class="fw-semibold">@user.Email</td>
+                            <td>@user.Name</td>
+                            <td>@user.UserStatus.ToString()</td>
+                            <td>@user.CreatedAt.ToString("yyyy-MM-dd HH:mm")</td>
+                            <td>@user.LastLogin?.ToString("yyyy-MM-dd HH:mm")</td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const selectAll = document.getElementById("selectAll");
+            const checkboxes = document.querySelectorAll(".row-checkbox");
+            const buttons = document.querySelectorAll("#btnDelete, #btnBlock, #btnUnblock");
+
+            function updateButtons() {
+                const checked = document.querySelectorAll(".row-checkbox:checked");
+                const hasChecked = checked.length > 0;
+                const allChecked = checked.length === checkboxes.length;
+
+                buttons.forEach(btn => btn.disabled = !hasChecked);
+
+                if (selectAll) {
+                    selectAll.checked = allChecked;
+                    selectAll.indeterminate = hasChecked && !allChecked;
+                }
+            }
+
+            selectAll?.addEventListener("change", function () {
+                checkboxes.forEach(cb => cb.checked = this.checked);
+                updateButtons();
+            });
+
+            checkboxes.forEach(cb => cb.addEventListener("change", updateButtons));
+
+            updateButtons();
+        });
+    </script>
+}
