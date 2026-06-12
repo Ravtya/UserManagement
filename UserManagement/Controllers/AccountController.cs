@@ -103,7 +103,10 @@ public class AccountController(AppDbContext context, EmailService emailService, 
     {
         var email = emailService.DecodeConfirmationLink(token);
 
-        var user = await context.Users.FirstOrDefaultAsync(n => n.Email == email && n.UserStatus != UserStatus.Blocked);
+        //Blocked and already verified users are not verified
+        var user = await context.Users.FirstOrDefaultAsync(n =>
+            n.Email == email && n.UserStatus == UserStatus.Unverified);
+        
         if (user != null)
         {
             user.UserStatus = UserStatus.Active;
