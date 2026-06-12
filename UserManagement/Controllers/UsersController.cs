@@ -18,7 +18,7 @@ public class UsersController(AppDbContext context) : Controller
                 Id = x.Id,
                 Email = x.Email,
                 Name = x.Name,
-                UserStatus =  x.UserStatus,
+                UserStatus = x.UserStatus,
                 CreatedAt = x.CreatedAt,
                 LastLogin = x.LastLogin
             })
@@ -44,7 +44,8 @@ public class UsersController(AppDbContext context) : Controller
     public async Task<IActionResult> Unblock(IEnumerable<int> selectedIds)
     {
         await context.Users.Where(n => selectedIds.Contains(n.Id) && n.UserStatus == UserStatus.Blocked)
-            .ExecuteUpdateAsync(n => n.SetProperty(p => p.UserStatus, UserStatus.Active));
+            .ExecuteUpdateAsync(n =>
+                n.SetProperty(p => p.UserStatus, p => p.WasVerified ? UserStatus.Active : UserStatus.Unverified));
 
         HttpContext.Session.SetString("SuccessMessage", "Users unblocked successfully");
 
@@ -56,9 +57,9 @@ public class UsersController(AppDbContext context) : Controller
     public async Task<IActionResult> Delete(IEnumerable<int> selectedIds)
     {
         await context.Users.Where(n => selectedIds.Contains(n.Id)).ExecuteDeleteAsync();
-        
+
         HttpContext.Session.SetString("SuccessMessage", "Users deleted successfully");
-        
+
         return RedirectToAction(nameof(Index));
     }
 
@@ -67,9 +68,9 @@ public class UsersController(AppDbContext context) : Controller
     public async Task<IActionResult> DeleteUnverified()
     {
         await context.Users.Where(n => n.UserStatus == UserStatus.Unverified).ExecuteDeleteAsync();
-        
+
         HttpContext.Session.SetString("SuccessMessage", "Unverified users deleted successfully");
-        
+
         return RedirectToAction(nameof(Index));
     }
 }

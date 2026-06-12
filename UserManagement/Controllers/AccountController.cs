@@ -107,6 +107,7 @@ public class AccountController(AppDbContext context, EmailService emailService, 
         if (user != null)
         {
             user.UserStatus = UserStatus.Active;
+            user.WasVerified = true;
             await context.SaveChangesAsync();
 
             HttpContext.Session.SetString("SuccessMessage", "Email confirmed");

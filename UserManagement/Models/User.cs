@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace UserManagement.Models;
+﻿namespace UserManagement.Models;
 
 public class User
 {
@@ -11,4 +9,5 @@ public class User
     public DateTime? LastLogin { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public UserStatus UserStatus { get; set; }
+    public bool WasVerified { get; set; }
 }

@@ -54,6 +54,9 @@ namespace UserManagement.Migrations
                     b.Property<int>("UserStatus")
                         .HasColumnType("integer");
 
+                    b.Property<bool>("WasVerified")
+                        .HasColumnType("boolean");
+
                     b.HasKey("Id");
 
                     b.HasIndex("Email")
